@@ -22,13 +22,12 @@ class FBSConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, fbs=False, sparsity_ratio=1.0):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
-        self.bn = nn.BatchNorm2d(out_channels)
+        self.bn = nn.BatchNorm2d(out_channels, affine=False)
         self.fbs = fbs
         self.sparsity_ratio = sparsity_ratio
         self.channel_saliency_predictor = nn.Linear(in_channels, out_channels)
         nn.init.kaiming_normal_(self.channel_saliency_predictor.weight, mode='fan_out', nonlinearity='relu')
         nn.init.constant_(self.channel_saliency_predictor.bias, 1.)
-        self.bn.weight.requires_grad_(False)
 
     def forward(self, x, inference=False):
         x, g = self.fbs_forward(x, inference)
