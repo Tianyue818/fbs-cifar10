@@ -27,7 +27,7 @@ for epoch in range(1, 500):
         correct_num += i_lb_batch.eq(lb_batch).sum().item()
     train_loss = train_loss / total_step
     train_acc = 100. * correct_num / total_num
-    print('Train acc:%d' %train_acc)
+    print('Train acc:%d' % train_acc)
 
     with torch.no_grad():
         test_loss = 0
