@@ -4,7 +4,7 @@ import torch.nn as nn
 from fbs import FBSConv2d
 
 class CifarNet(nn.Module):
-    def __init__(self, sparsity_ratio=1.0):
+    def __init__(self, sparsity_ratio=0.5):
         super().__init__()
         self.layer0 = FBSConv2d(3, 64, 3, stride=1, padding=0, sparsity_ratio=sparsity_ratio)
         self.layer1 = FBSConv2d(64, 64, 3, stride=1, padding=1, sparsity_ratio=sparsity_ratio)

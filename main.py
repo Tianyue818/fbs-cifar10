@@ -4,11 +4,14 @@ import torch.nn as nn
 from dataset import get_loader
 from model import CifarNet
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 train_loader, test_loader = get_loader(256)
 model = CifarNet(sparsity_ratio=1.0).cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-for epoch in range(1, 500):
+best_acc=0
+for epoch in range(1, 50):
     print(f'Epoch: {epoch}')
     train_loss = 0
     total_num = 0
@@ -16,6 +19,8 @@ for epoch in range(1, 500):
     total_step = len(train_loader)
     model.train()
     for img_batch, lb_batch in tqdm(train_loader, total=total_step):
+        img_batch = img_batch.cuda()
+        lb_batch = lb_batch.cuda()
         i_batch, lasso = model(img_batch)
         loss = criterion(i_batch, lb_batch) + lasso * (1e-8)
         optimizer.zero_grad()
@@ -27,7 +32,7 @@ for epoch in range(1, 500):
         correct_num += i_lb_batch.eq(lb_batch).sum().item()
     train_loss = train_loss / total_step
     train_acc = 100. * correct_num / total_num
-    print('Train acc:%d' % train_acc)
+    print('Train acc:%.2f%%' % train_acc)
 
     with torch.no_grad():
         test_loss = 0
@@ -36,6 +41,8 @@ for epoch in range(1, 500):
         total_step = len(test_loader)
         model.eval()
         for img_batch, lb_batch in tqdm(test_loader, total=len(test_loader)):
+            img_batch = img_batch.cuda()
+            lb_batch = lb_batch.cuda()
             i_batch, lasso = model(img_batch, True)
             loss = criterion(i_batch, lb_batch) + lasso * (1e-8)
             test_loss += loss.item()
@@ -44,4 +51,7 @@ for epoch in range(1, 500):
             correct_num += i_lb_batch.eq(lb_batch).sum().item()
         test_loss = test_loss / total_step
         test_acc = 100. * correct_num / total_num
-        print('Test acc:%d' % test_acc)
+        print('Test acc:%.2f%%' % test_acc)
+        if test_acc > best_acc:
+            best_acc = test_acc
+            torch.save(model.state_dict(), '.\ps_ct\params.pth')
