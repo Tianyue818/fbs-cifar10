@@ -13,14 +13,14 @@ def str2bool(v):
         return False
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--fbs', type=str2bool, default=False)
+parser.add_argument('--fbs', type=str2bool, default=True)
 parser.add_argument( '--sparsity_ratio', type=float, default=0.5)
 parser.add_argument( '--lasso_lambda', type=float,default=1e-8)
 parser.add_argument( '--epochs', type=int, default=500)
 parser.add_argument( '--batch_size', type=int, default=256)
 parser.add_argument( '--lr', type=float, default=1e-3)
 parser.add_argument('--ckpt_path', type=str, default='checkpoints')
-parser.add_argument('--pretrained', type=str,default='checkpoints/best_False_1.0.pt')
+parser.add_argument('--pretrained', type=str,default='checkpoints/best_False_0.5.pt')
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -34,7 +34,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
 if args.fbs:
-    if args.sparsity_ratio == 1.0:
+    if args.sparsity_ratio == 0.5:
         base_state_dict = torch.load(args.pretrained)
         model_state_dict = model.state_dict()
         for k, v in model_state_dict.items():
