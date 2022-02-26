@@ -1,1 +1,1 @@
-# FBS-ResMlp
+# FBS-Cifar10
